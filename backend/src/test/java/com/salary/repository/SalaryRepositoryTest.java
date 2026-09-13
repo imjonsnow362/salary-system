@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,6 +70,23 @@ class SalaryRepositoryTest {
         assertThat(history.getContent()).hasSize(2);
         assertThat(history.getContent().get(0).getBaseSalary()).isEqualByComparingTo("60000");
         assertThat(history.getContent().get(1).getBaseSalary()).isEqualByComparingTo("50000");
+    }
+
+    @Test
+    void findsOnlyMostRecentSalaryPerEmployeeAcrossMultipleEmployees() {
+        Employee bob = employeeRepository.save(new Employee(
+                "EMP000002", "Bob", "Khan", "bob.khan@company.com",
+                "+91-9000000001", "Sales", "Rep", alice.getCountry(), LocalDate.of(2021, 1, 1)));
+
+        salaryRepository.save(new Salary(alice, BigDecimal.valueOf(50000), "INR", null, null, LocalDate.of(2020, 1, 1)));
+        salaryRepository.save(new Salary(alice, BigDecimal.valueOf(70000), "INR", null, null, LocalDate.of(2022, 1, 1)));
+        salaryRepository.save(new Salary(bob, BigDecimal.valueOf(40000), "INR", null, null, LocalDate.of(2021, 1, 1)));
+
+        List<Salary> current = salaryRepository.findCurrentSalaryPerEmployee();
+
+        assertThat(current).hasSize(2);
+        assertThat(current).extracting(Salary::getBaseSalary)
+                .containsExactlyInAnyOrder(new BigDecimal("70000"), new BigDecimal("40000"));
     }
 
     @Test
