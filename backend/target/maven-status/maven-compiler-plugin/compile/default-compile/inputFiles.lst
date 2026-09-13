@@ -1,3 +1,10 @@
+/Users/akshat/Downloads/salary-system-work/backend/src/main/java/com/salary/repository/SalaryRepository.java
 /Users/akshat/Downloads/salary-system-work/backend/src/main/java/com/salary/config/DataSeeder.java
 /Users/akshat/Downloads/salary-system-work/backend/src/main/java/com/salary/config/SQLiteDialect.java
+/Users/akshat/Downloads/salary-system-work/backend/src/main/java/com/salary/domain/EmploymentStatus.java
+/Users/akshat/Downloads/salary-system-work/backend/src/main/java/com/salary/domain/Employee.java
+/Users/akshat/Downloads/salary-system-work/backend/src/main/java/com/salary/domain/Country.java
+/Users/akshat/Downloads/salary-system-work/backend/src/main/java/com/salary/domain/Salary.java
 /Users/akshat/Downloads/salary-system-work/backend/src/main/java/com/salary/SalarySystemApplication.java
+/Users/akshat/Downloads/salary-system-work/backend/src/main/java/com/salary/repository/EmployeeRepository.java
+/Users/akshat/Downloads/salary-system-work/backend/src/main/java/com/salary/repository/CountryRepository.java
