@@ -196,14 +196,12 @@ public class DataSeeder {
      * Seeds employees in batches to manage memory efficiently.
      */
     private void seedEmployees(Connection conn, Map<String, Integer> countryIds) throws SQLException {
-        String insertEmployeeSql = "INSERT INTO employees (employee_id, first_name, last_name, email, phone_number, department, designation, country_id, hired_date, employment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        String insertSalarySql = "INSERT INTO salaries (employee_id, base_salary, currency_code, annual_bonus, benefits_value, effective_date) VALUES (?, ?, ?, ?, ?, ?)";
+        String insertEmployeeSql = "INSERT INTO employees (employee_id, first_name, last_name, email, phone_number, department, designation, country_id, hired_date, employment_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         List<String> countryNames = new ArrayList<>(countryIds.keySet());
         int employeesCreated = 0;
 
-        try (PreparedStatement empStmt = conn.prepareStatement(insertEmployeeSql);
-             PreparedStatement salaryStmt = conn.prepareStatement(insertSalarySql)) {
+        try (PreparedStatement empStmt = conn.prepareStatement(insertEmployeeSql)) {
 
             for (int i = 0; i < TOTAL_EMPLOYEES; i++) {
                 // Generate employee data
@@ -221,6 +219,7 @@ public class DataSeeder {
                 LocalDate hiredDate = generateHiredDate();
 
                 // Insert employee
+                String now = timestampNow();
                 empStmt.setString(1, employeeId);
                 empStmt.setString(2, firstName);
                 empStmt.setString(3, lastName);
@@ -231,6 +230,8 @@ public class DataSeeder {
                 empStmt.setInt(8, countryId);
                 empStmt.setString(9, hiredDate.toString());
                 empStmt.setString(10, "ACTIVE");
+                empStmt.setString(11, now);
+                empStmt.setString(12, now);
                 empStmt.addBatch();
 
                 if ((i + 1) % BATCH_SIZE == 0) {
@@ -255,7 +256,7 @@ public class DataSeeder {
      */
     private void seedSalaries(Connection conn, Map<String, Integer> countryIds) throws SQLException {
         String selectEmployeesSql = "SELECT id, country_id FROM employees ORDER BY id";
-        String insertSalarySql = "INSERT INTO salaries (employee_id, base_salary, currency_code, annual_bonus, benefits_value, effective_date) VALUES (?, ?, ?, ?, ?, ?)";
+        String insertSalarySql = "INSERT INTO salaries (employee_id, base_salary, currency_code, annual_bonus, benefits_value, effective_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(selectEmployeesSql);
@@ -291,6 +292,7 @@ public class DataSeeder {
                     salaryStmt.setBigDecimal(4, bonus);
                     salaryStmt.setBigDecimal(5, benefits);
                     salaryStmt.setString(6, effectiveDate.toString());
+                    salaryStmt.setString(7, timestampNow());
                     salaryStmt.addBatch();
                 }
 
@@ -320,6 +322,11 @@ public class DataSeeder {
         // Employees hired between 1-10 years ago
         long daysAgo = 365 + random.nextInt(365 * 9);
         return LocalDate.now().minus(daysAgo, ChronoUnit.DAYS);
+    }
+
+    // Millisecond precision so the SQLite JDBC driver's timestamp parser doesn't choke (unlike its own CURRENT_TIMESTAMP default)
+    private String timestampNow() {
+        return java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()).toString();
     }
 
     private BigDecimal generateSalary(double minSalary, double maxSalary) {
