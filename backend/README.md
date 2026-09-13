@@ -48,15 +48,14 @@ backend/
 | Testing | JUnit 5, Mockito, AssertJ, H2 (in-memory, test-only) |
 | Data generation | JavaFaker |
 
-## Planned API
+## API
 
 ### Employees
 ```
-GET    /api/employees?page=0&size=500
+GET    /api/employees?page=0&size=500&q=name
 GET    /api/employees/{id}
 POST   /api/employees
-PUT    /api/employees/{id}
-GET    /api/employees/search?q=alice&dept=eng
+POST   /api/employees/{id}/deactivate
 ```
 
 ### Salaries
@@ -69,10 +68,9 @@ GET    /api/employees/{id}/salaries/current
 ### Analytics
 ```
 GET    /api/analytics/salary-by-department
-GET    /api/analytics/salary-by-country
-GET    /api/analytics/salary-distribution
 GET    /api/analytics/headcount-by-country
-GET    /api/analytics/payroll-cost
+GET    /api/analytics/payroll-cost-by-country
+GET    /api/analytics/salary-distribution-by-country
 ```
 
 ## Testing

@@ -1,27 +1,27 @@
-# SalaryFrontend
+# Salary Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.2.11.
+Angular 15 UI for employee records, salary history, and analytics.
 
-## Development server
+## Run
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Start the backend API on port 8080 first, then run:
 
-## Code scaffolding
+```bash
+npm install
+npm start
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Open `http://localhost:4200`. Development requests target `http://localhost:8080/api`.
 
-## Build
+## Commands
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```bash
+npm test
+npm run build
+```
 
-## Running unit tests
+## Structure
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+- `src/app/core`: API services and shared models
+- `src/app/features/employees`: employee list, profile, create form, and salary history
+- `src/app/features/analytics`: analytics dashboard

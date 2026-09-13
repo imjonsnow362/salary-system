@@ -1,7 +1,7 @@
 # Architecture Decisions & Trade-offs
 
 ## Overview
-This document captures key architectural decisions, trade-offs, and rationale for the Employee Salary Management System.
+This document captures the implemented architectural decisions and trade-offs for the Employee Salary Management System.
 
 ---
 
@@ -9,11 +9,11 @@ This document captures key architectural decisions, trade-offs, and rationale fo
 
 ### Choice: SQLite
 **Rationale:**
-- **File-based**: No server setup required—`salary_system.db` is deployed as a single file
+- **File-based**: No server setup is required; `salary_system.db` is a local application file
 - **Relational model**: Perfect for structured HR data (employees, salaries, departments)
-- **Sufficient for scale**: 10,000 records fit easily in SQLite; ~50MB file size
+- **Sufficient for scale**: suitable for this local 10,000-employee exercise
 - **Development speed**: No Docker/Docker Compose, no connection pooling hassle
-- **Testing**: Can use in-memory SQLite for fast, deterministic tests
+- **Testing**: backend tests use H2 in memory for fast, deterministic tests
 
 ### Trade-offs:
 
@@ -31,9 +31,9 @@ This document captures key architectural decisions, trade-offs, and rationale fo
 - Can migrate to PostgreSQL later if needed (tables, queries stay same)
 
 **Future Migration Path:**
-1. Code uses JPA—switch `spring.jpa.properties.hibernate.dialect` to PostgreSQL
-2. Export SQLite data, import to PostgreSQL
-3. No application code changes needed (repositories unchanged)
+1. Replace the SQLite JDBC driver and dialect with PostgreSQL equivalents.
+2. Migrate the SQLite data and review SQLite-specific schema details.
+3. Re-test repository queries and migrations against PostgreSQL.
 
 ---
 
@@ -97,7 +97,7 @@ Entity (Domain Model)
 ```java
 // Service layer
 public Page<EmployeeDTO> getEmployees(int page, int pageSize) {
-    Pageable pageable = PageRequest.of(page, pageSize, Sort.by("employee_id").ascending());
+    Pageable pageable = PageRequest.of(page, pageSize);
     return employeeRepository.findAll(pageable)
         .map(EmployeeDTO::from);
 }
@@ -107,7 +107,7 @@ public Page<EmployeeDTO> getEmployees(int page, int pageSize) {
 - 10,000 records = ~5-10 MB in memory; scales poorly with more employees
 - Network transfer: All 10k records = 5-10 MB over HTTP
 - Browser rendering: Slow with 10k DOM nodes
-- **User experience**: Users see first page instantly (< 500ms vs 2-3s)
+- **User experience**: users can browse a bounded result set instead of a full employee table
 
 ---
 
@@ -147,24 +147,23 @@ SELECT * FROM salaries WHERE employee_id = 1 ORDER BY effective_date DESC LIMIT 
 
 ---
 
-## Decision 5: Pagination Size: 500 records per page
+## Decision 5: Pagination
 
-### Choice: 500 records/page
+### Choice: server-side pagination
 
 **Rationale:**
-- **Network**: ~500KB per page (with typical DTO fields)
-- **Browser rendering**: 500 rows ≈ 100KB of DOM, renders instantly
-- **Usability**: Users can scroll 500 rows; more = "give me search"
+- The API defaults to 500 records per page when no size is supplied.
+- The Angular list requests 20 records per page and lets the user choose 10, 20, 50, or 100.
+- Page size is sent to the server, so the browser never loads the full employee population.
 
 ### Calculation for 10,000 employees
 
 | Aspect | Value |
 |--------|-------|
 | Total employees | 10,000 |
-| Records per page | 500 |
-| Total pages | 20 |
-| Avg response time (w/ pagination) | < 200ms |
-| Avg response time (all 10k) | 1-2 seconds |
+| API default page size | 500 |
+| UI default page size | 20 |
+| UI page-size options | 10, 20, 50, 100 |
 
 **Trade-off:**
 - Fewer records/page = more clicks to browse
@@ -177,7 +176,7 @@ SELECT * FROM salaries WHERE employee_id = 1 ORDER BY effective_date DESC LIMIT 
 ### Choice: REST API with DTOs (Data Transfer Objects)
 
 ```
-GET /api/employees?page=0&size=500&sort=department,asc
+GET /api/employees?page=0&size=500&q=alice
 → Returns EmployeeDTO (subset of Employee entity)
 ```
 
@@ -234,7 +233,7 @@ public class EmployeeDTO {
 @Test
 void testCalculateAverageSalaryByDepartment_Engineering() {
     // Setup: Mock repository
-    List<Salary> engineeringSalaries = List.of(
+    List<Salary> engineeringSalaries = Arrays.asList(
         new Salary(50000),
         new Salary(60000),
         new Salary(70000)
@@ -263,7 +262,7 @@ class EmployeeRepositoryTest {
     
     @Test
     void testFindByDepartmentWithPagination() {
-        // Setup: Use real in-memory SQLite
+        // Setup: use H2 through the test profile
         Employee emp1 = new Employee("Alice", "Eng", ...);
         em.persistAndFlush(emp1);
         
@@ -276,9 +275,9 @@ class EmployeeRepositoryTest {
 
 ---
 
-## Decision 8: Frontend Framework - Angular 14+
+## Decision 8: Frontend Framework - Angular 15
 
-### Choice: Angular (14-17 range)
+### Choice: Angular 15
 
 **Rationale:**
 - **TypeScript**: Type-safe, IDE support, fewer runtime errors
@@ -286,14 +285,7 @@ class EmployeeRepositoryTest {
 - **Modularity**: Feature modules for employees, analytics, admin
 - **Testing**: Jasmine/Karma baked in
 
-### State Management: NgRx (Optional, but recommended)
-
-**If complexity grows:**
-- Use NgRx for caching employee list (avoid re-fetching on pagination)
-- Actions: `LoadEmployees`, `LoadEmployeesSuccess`, `LoadEmployeesFailure`
-- Selectors: `selectEmployeeList`, `selectLoading`
-
-**For MVP:** Can use simple service + RxJS BehaviorSubject
+The application currently uses feature modules, `HttpClient`, and RxJS observables. NgRx is unnecessary at the current scope; introduce it only if shared client state and caching become material.
 
 ---
 
@@ -371,4 +363,8 @@ public class GlobalExceptionHandler {
 
 ---
 
-**Status**: Architecture locked in. Ready for implementation.
+## Analytics Trade-off
+
+Analytics select the latest salary record for each employee and calculate grouped results in the service layer. Raw salary rows are not sent to the Angular client. This is acceptable for the local 10,000-employee exercise but is not database-level aggregation.
+
+Country payroll and salary-distribution results retain local currency. Department salary averages have no exchange-rate conversion and should not be treated as a cross-currency financial total.

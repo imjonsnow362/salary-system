@@ -1,11 +1,11 @@
 # Employee Salary Management System
 
-A web-based salary management platform for HR teams to manage 10,000+ employees across multiple countries — replaces Excel-based tracking with a searchable, paginated UI and org-wide compensation analytics.
+A local web application for HR teams to manage employees and versioned salary records across five countries. The seed generates 10,000 employees with one to three salary records each.
 
 ## Stack
-- **Backend**: Spring Boot 2.5.0, Java 1.8, JPA/Hibernate, SQLite
-- **Frontend**: Angular
-- **Testing**: JUnit 5, Mockito, AssertJ (backend); Jasmine/Karma (frontend)
+- Backend: Spring Boot 2.5.0, Java 8, JPA/Hibernate, SQLite
+- Frontend: Angular 15, TypeScript, RxJS, Angular Material
+- Testing: JUnit 5, Mockito, AssertJ, H2 test database, Jasmine/Karma
 
 ## Project Structure
 
@@ -32,24 +32,27 @@ salary-system-work/
 └── README.md
 ```
 
-## Quick Start
+## Run Locally
 
-### Backend
+The backend must be running before the development frontend, which calls `http://localhost:8080/api`.
 
 ```bash
+# Terminal 1: install, test, seed, and run the API
 cd backend
 mvn clean install
-mvn exec:java -Dexec.mainClass="com.salary.config.DataSeeder"   # seeds 10,000 employees
-mvn spring-boot:run                                              # http://localhost:8080/api
+rm -f salary_system.db
+mvn exec:java -Dexec.mainClass=com.salary.config.DataSeeder
+mvn spring-boot:run
 ```
-
-### Frontend
 
 ```bash
+# Terminal 2: install and run the UI
 cd frontend
 npm install
-ng serve   # http://localhost:4200
+npm start
 ```
+
+Open `http://localhost:4200`. The API is available at `http://localhost:8080/api`.
 
 ## Documentation
 
@@ -63,11 +66,18 @@ ng serve   # http://localhost:4200
 ## Testing
 
 ```bash
-cd backend && mvn test          # unit + repository integration tests
-cd frontend && npm test         # component tests
+cd backend && mvn test
+cd frontend && npm test
+cd frontend && npm run build
 ```
 
-Test pyramid: unit tests dominate (mocked dependencies, fast), a smaller layer of repository/integration tests run against an in-memory DB, and a thin layer of end-to-end tests cover the full request/response cycle.
+Backend repository tests use H2 in memory; the running application uses the SQLite file `backend/salary_system.db`.
+
+## Demo
+
+Video recording: add the final submission URL here before submitting.
+
+This submission is designed to run locally. Deployment is not included.
 
 ## Database Schema
 
