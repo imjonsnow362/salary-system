@@ -1,0 +1,9 @@
+com/salary/service/AnalyticsServiceTest.class
+com/salary/service/EmployeeServiceTest.class
+com/salary/repository/EmployeeRepositoryTest.class
+com/salary/controller/SalaryControllerTest.class
+com/salary/controller/EmployeeControllerTest.class
+com/salary/repository/CountryRepositoryTest.class
+com/salary/service/SalaryServiceTest.class
+com/salary/repository/SalaryRepositoryTest.class
+com/salary/controller/AnalyticsControllerTest.class

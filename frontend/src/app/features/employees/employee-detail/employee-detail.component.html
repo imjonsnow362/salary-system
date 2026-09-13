@@ -1,0 +1,78 @@
+<div class="page" *ngIf="employee">
+  <mat-card>
+    <h2>{{ employee.fullName }} ({{ employee.employeeId }})</h2>
+    <p>Email: {{ employee.email }} | Phone: {{ employee.phoneNumber }}</p>
+    <p>Department: {{ employee.department }} | Designation: {{ employee.designation }}</p>
+    <p>Country: {{ employee.countryName }} | Hired: {{ employee.hiredDate }} | Status: {{ employee.employmentStatus }}</p>
+    <button mat-raised-button color="primary" (click)="edit()">Edit</button>
+    <button mat-raised-button color="warn" (click)="deactivate()" *ngIf="employee.employmentStatus === 'ACTIVE'">Deactivate</button>
+  </mat-card>
+
+  <mat-card>
+    <h3>Current Salary</h3>
+    <p *ngIf="currentSalary">
+      {{ currentSalary.baseSalary }} {{ currentSalary.currencyCode }}
+      (Total comp: {{ currentSalary.totalCompensation }}) effective {{ currentSalary.effectiveDate }}
+    </p>
+    <p *ngIf="!currentSalary">No salary recorded yet.</p>
+    <button mat-raised-button color="accent" (click)="toggleAddSalary()">
+      {{ showAddSalary ? 'Cancel' : 'Add Salary' }}
+    </button>
+
+    <form [formGroup]="salaryForm" (ngSubmit)="submitSalary()" *ngIf="showAddSalary" class="salary-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Base Salary</mat-label>
+        <input matInput type="number" formControlName="baseSalary">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Currency Code</mat-label>
+        <input matInput formControlName="currencyCode" placeholder="USD">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Annual Bonus</mat-label>
+        <input matInput type="number" formControlName="annualBonus">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Benefits Value</mat-label>
+        <input matInput type="number" formControlName="benefitsValue">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Effective Date</mat-label>
+        <input matInput type="date" formControlName="effectiveDate">
+      </mat-form-field>
+      <button mat-raised-button color="primary" type="submit" [disabled]="salaryForm.invalid">Save</button>
+    </form>
+  </mat-card>
+
+  <mat-card>
+    <h3>Salary History</h3>
+    <table mat-table [dataSource]="salaryHistory" class="mat-elevation-z1">
+      <ng-container matColumnDef="effectiveDate">
+        <th mat-header-cell *matHeaderCellDef>Effective Date</th>
+        <td mat-cell *matCellDef="let s">{{ s.effectiveDate }}</td>
+      </ng-container>
+      <ng-container matColumnDef="baseSalary">
+        <th mat-header-cell *matHeaderCellDef>Base Salary</th>
+        <td mat-cell *matCellDef="let s">{{ s.baseSalary }}</td>
+      </ng-container>
+      <ng-container matColumnDef="annualBonus">
+        <th mat-header-cell *matHeaderCellDef>Annual Bonus</th>
+        <td mat-cell *matCellDef="let s">{{ s.annualBonus }}</td>
+      </ng-container>
+      <ng-container matColumnDef="benefitsValue">
+        <th mat-header-cell *matHeaderCellDef>Benefits</th>
+        <td mat-cell *matCellDef="let s">{{ s.benefitsValue }}</td>
+      </ng-container>
+      <ng-container matColumnDef="totalCompensation">
+        <th mat-header-cell *matHeaderCellDef>Total Compensation</th>
+        <td mat-cell *matCellDef="let s">{{ s.totalCompensation }}</td>
+      </ng-container>
+      <ng-container matColumnDef="currencyCode">
+        <th mat-header-cell *matHeaderCellDef>Currency</th>
+        <td mat-cell *matCellDef="let s">{{ s.currencyCode }}</td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </mat-card>
+</div>

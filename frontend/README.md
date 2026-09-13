@@ -1,39 +1,27 @@
-# Frontend - Employee Salary Management System
+# SalaryFrontend
 
-Angular app for the HR-manager UI: employee list/search, employee detail with salary history, and an analytics dashboard. Not yet implemented — this describes the planned structure.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.2.11.
 
-## Setup & Run
+## Development server
 
-```bash
-cd frontend
-npm install
-ng serve   # http://localhost:4200
-ng test    # Jasmine/Karma
-```
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-## Planned Structure
+## Code scaffolding
 
-```
-frontend/src/app/
-├── core/          # HTTP services, guards, interceptors
-├── shared/        # Reusable components, pipes, models
-├── features/
-│   ├── employees/   # List (paginated), detail, edit
-│   └── analytics/    # Dashboard: salary by dept/country, distribution, headcount
-└── app.module.ts
-```
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
-## Routes
+## Build
 
-```
-/employees              paginated, searchable list
-/employees/:id           detail + salary history
-/employees/:id/edit
-/employees/new
-/analytics                dashboard
-```
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-## Notes on approach
-- Server-side pagination throughout — the backend returns 500 records/page, never all 10k at once.
-- State management: start with plain services + RxJS `BehaviorSubject`; move to NgRx only if state complexity actually demands it.
-- API base URL lives in `src/environments/environment.ts`.
+## Running unit tests
+
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+
+## Running end-to-end tests
+
+Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+
+## Further help
+
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.

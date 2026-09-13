@@ -1,0 +1,16 @@
+.page {
+  padding: 16px;
+}
+.employee-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 400px;
+}
+.actions {
+  display: flex;
+  gap: 12px;
+}
+.error {
+  color: red;
+}
